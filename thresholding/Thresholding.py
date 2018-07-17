@@ -1,37 +1,19 @@
 import cv2
 import numpy as np
 
-# Load two images
-img1 = cv2.imread('3D-Matplotlib.png')
-img2 = cv2.imread('mainlogo.png')
+img = cv2.imread('book-page.jpg')
 
-# I want to put logo on top-left corner, So I create a ROI
-rows,cols,channels = img2.shape
-roi = img1[0:rows, 0:cols ]
+retval, threshold = cv2.threshold(img, 8, 255, cv2.THRESH_BINARY)
 
-# Now create a mask of logo and create its inverse mask
-img2gray = cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+grayscaled = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+retval2nd, threshold2nd = cv2.threshold(grayscaled, 8, 255, cv2.THRESH_BINARY)
+gaussian = cv2.adaptiveThreshold(grayscaled, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 155, 1)
+retval2, otsu = cv2.threshold(grayscaled, 85,255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-# add a threshold
-ret, mask = cv2.threshold(img2gray, 220, 255, cv2.THRESH_BINARY_INV)
-
-mask_inv = cv2.bitwise_not(mask)
-
-# Now black-out the area of logo in ROI
-img1_bg = cv2.bitwise_and(roi,roi,mask = mask_inv)
-
-# Take only region of logo from logo image.
-img2_fg = cv2.bitwise_and(img2,img2,mask = mask)
-
-dst = cv2.add(img1_bg,img2_fg)
-img1[0:rows, 0:cols ] = dst
-
-cv2.imshow('res',img1)
-cv2.imshow('mask_inv',mask_inv)
-cv2.imshow('img1_bg',img1_bg)
-cv2.imshow('img2_fg',img2_fg)
-cv2.imshow('dst',dst)
-
-
+cv2.imshow('original',img)
+cv2.imshow('threshold',threshold)
+cv2.imshow('threshold2nd',threshold2nd)
+cv2.imshow('gaussian',gaussian)
+cv2.imshow('otsu',otsu)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
